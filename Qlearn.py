@@ -93,6 +93,22 @@ class Agent:
             if episode % int(episodes/10) == 0:
                 print(int(episode/episodes * 100), "% done...")
 
+    def solve(self, max_steps = 10):
+        '''tries to apply the current Q-table to solve the environment.'''
+        reward = 0
+        steps = 0
+        print("Current state:", self.env.return_state())
+        while reward == 0:
+            action_key = list(self.env.actions.keys())[np.argmax(self.Q[self.state_to_index_(self.env.return_state())])]
+            print("applying action:", action_key)
+            new_state, reward = self.env.perform_action(action_key)
+            print("current state:", new_state)
+
+            steps += 1
+            if steps >= max_steps:
+                print("Maximum number of steps reached.")
+                break
+
 if __name__ == "__main__":
     env = Environment()
     ag = Agent()
