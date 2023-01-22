@@ -84,11 +84,14 @@ class Agent:
                 state = self.env.return_state()
                 new_state, reward = self.env.perform_action(action_key)
 
-                action_index = np.argwhere(list(self.env.actions.keys()) == action_key)[0][0]
+                action_index = np.argwhere(np.array(list(self.env.actions.keys())) == action_key)[0][0]
                 self.Q[self.state_to_index_(state)][action_index] = self.Q[self.state_to_index_(state)][action_index] + learning_rate * (reward + gamma * np.max(self.Q[self.state_to_index_(new_state)]) - self.Q[self.state_to_index_(state)][action_index])
 
                 if reward != 0:
                     break
+
+            if episode % int(episodes/10) == 0:
+                print(int(episode/episodes * 100), "% done...")
 
 if __name__ == "__main__":
     env = Environment()
