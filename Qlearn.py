@@ -26,6 +26,7 @@ class Environment:
         self.maxcars = maxcars
         self.lanes = 12
         self.state_ = np.random.randint(0, self.maxcars+1, size=self.lanes)
+        self.actions_taken = 0
 
     def return_state(self):
         '''returns the state an agent sees.'''
@@ -33,13 +34,21 @@ class Environment:
         return [non_zero(line) for line in self.state_]
     
     def perform_action(self, action_key):
-        '''performs action corresponding to action_key on the state, returns new state.'''
+        '''performs action corresponding to action_key on the state, returns new state and reward.'''
         if action_key not in self.actions.keys():
             raise ValueError('Passed action key does not correspond to a valid action!')
         
-        self.state_ = self.state_ - self.actions[action_key]
+        temp = self.state_ - self.actions[action_key]
+        self.state_ = np.where(temp >= 0, temp, 0)
+        self.actions_taken += 1
+
+        reward = -self.actions_taken
+        for lane in self.state_:
+            if lane != 0:
+                reward = 0  #reset reward if there are still non-zero lanes
+
         new_state = self.return_state()
-        return new_state
+        return new_state, reward
 
 class Agent:
     def __init__(self, environment = Environment()):
