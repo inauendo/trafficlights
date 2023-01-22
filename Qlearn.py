@@ -29,6 +29,15 @@ class Environment:
     def return_state(self):
         non_zero = lambda x: x if x==0 else 1
         return [non_zero(line) for line in self.state_]
+    
+    def perform_action(self, action_key):
+        '''performs action corresponding to action_key on the state, returns new state.'''
+        if action_key not in self.actions.keys():
+            raise ValueError('Passed action key does not correspond to a valid action!')
+        
+        self.state_ = self.state_ - self.actions[action_key]
+        new_state = self.return_state()
+        return new_state
 
 if __name__ == "__main__":
     env = Environment()
