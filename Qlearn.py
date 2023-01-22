@@ -27,6 +27,7 @@ class Environment:
         self.state_ = np.random.randint(0, self.maxcars+1, size=12)
 
     def return_state(self):
+        '''returns the state an agent sees.'''
         non_zero = lambda x: x if x==0 else 1
         return [non_zero(line) for line in self.state_]
     
