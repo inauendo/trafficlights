@@ -62,6 +62,15 @@ class Agent:
         for i in range(len(state)):
             res += state[::-1][i]*2**i
         return res
+    
+    def epsilon_greedy_policy(self, epsilon):
+        '''returns the action key corresponding to the action to take determined by the epsilon greedy policy.'''
+        random_num = random.uniform(0,1)
+        if random_num < epsilon:
+            return random.choice(list(self.env.actions.keys()))
+        else:
+            index = np.argmax(self.Q[self.state_to_index_(self.env.return_state())])
+            return list(self.env.actions.keys())[index]
 
 if __name__ == "__main__":
     env = Environment()
