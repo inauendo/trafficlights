@@ -24,7 +24,8 @@ class Environment:
 
     def __init__(self, maxcars = 3):
         self.maxcars = maxcars
-        self.state_ = np.random.randint(0, self.maxcars+1, size=12)
+        self.lanes = 12
+        self.state_ = np.random.randint(0, self.maxcars+1, size=self.lanes)
 
     def return_state(self):
         '''returns the state an agent sees.'''
