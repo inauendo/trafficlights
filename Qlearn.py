@@ -41,5 +41,10 @@ class Environment:
         new_state = self.return_state()
         return new_state
 
+class Agent:
+    def __init__(self, environment = Environment()):
+        self.env = environment
+        self.Q = np.zeros((2**self.env.lanes, len(self.env.actions.keys())))  #Q table
+
 if __name__ == "__main__":
     env = Environment()
