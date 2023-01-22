@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class Environment:
 
@@ -54,6 +55,13 @@ class Agent:
     def __init__(self, environment = Environment()):
         self.env = environment
         self.Q = np.zeros((2**self.env.lanes, len(self.env.actions.keys())))  #Q table
+
+    def state_to_index_(state):
+        '''converts a lane state (as given by self.return_state) to the corresponding index in the Q table.'''
+        res = 0
+        for i in range(len(state)):
+            res += state[::-1][i]*2**i
+        return res
 
 if __name__ == "__main__":
     env = Environment()
