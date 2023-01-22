@@ -32,7 +32,7 @@ class Environment:
     def return_state(self):
         '''returns the state an agent sees.'''
         non_zero = lambda x: x if x==0 else 1
-        return [non_zero(line) for line in self.state_]
+        return np.array([non_zero(line) for line in self.state_])
     
     def perform_action(self, action_key):
         '''performs action corresponding to action_key on the state, returns new state and reward.'''
@@ -56,7 +56,7 @@ class Agent:
         self.env = environment
         self.Q = np.zeros((2**self.env.lanes, len(self.env.actions.keys())))  #Q table
 
-    def state_to_index_(state):
+    def state_to_index_(self, state):
         '''converts a lane state (as given by self.return_state) to the corresponding index in the Q table.'''
         res = 0
         for i in range(len(state)):
@@ -65,3 +65,4 @@ class Agent:
 
 if __name__ == "__main__":
     env = Environment()
+    ag = Agent()
