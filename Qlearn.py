@@ -71,6 +71,24 @@ class Agent:
         else:
             index = np.argmax(self.Q[self.state_to_index_(self.env.return_state())])
             return list(self.env.actions.keys())[index]
+        
+    def train(self, episodes, max_eps, min_eps, learning_rate, decay_rate, gamma, max_steps):
+        '''trains the model, modifying the Q-table.'''
+        for episode in range(episodes):
+            self.env = Environment()
+            steps = 0
+            eps = min_eps + (max_eps - min_eps)*np.exp(-decay_rate*episode)
+
+            for step in range(max_steps):
+                action_key = self.epsilon_greedy_policy(eps)
+                state = self.env.return_state()
+                new_state, reward = self.env.perform_action(action_key)
+
+                action_index = np.argwhere(list(self.env.actions.keys()) == action_key)[0][0]
+                self.Q[self.state_to_index_(state)][action_index] = self.Q[self.state_to_index_(state)][action_index] + learning_rate * (reward + gamma * np.max(self.Q[self.state_to_index_(new_state)]) - self.Q[self.state_to_index_(state)][action_index])
+
+                if reward != 0:
+                    break
 
 if __name__ == "__main__":
     env = Environment()
