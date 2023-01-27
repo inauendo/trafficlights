@@ -50,6 +50,21 @@ class Environment:
 
         new_state = self.return_state()
         return new_state, reward
+    
+    def find_permutations_(self, state):
+        '''finds an returns all non-trivial states that can be found by rotating the given state.'''
+        rotate = lambda x: np.concatenate((x[-3:], x[:-3]))
+        res = [state]
+        tmpstate = state
+        for i in range(3):
+            tmpstate = rotate(tmpstate)
+            not_present = True
+            for entry in res:
+                if np.all(entry == tmpstate):
+                    not_present = False 
+            if not_present == True:
+                res.append(tmpstate)
+        return np.array(res)
 
 class Agent:
     def __init__(self, environment = Environment()):
