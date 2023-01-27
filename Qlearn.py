@@ -51,13 +51,15 @@ class Environment:
         new_state = self.return_state()
         return new_state, reward
     
+    def rotate_state_(self, state):
+        return np.concatenate((state[-3:], state[:-3]))
+    
     def find_permutations_(self, state):
         '''finds an returns all non-trivial states that can be found by rotating the given state.'''
-        rotate = lambda x: np.concatenate((x[-3:], x[:-3]))
         res = [state]
         tmpstate = state
         for i in range(3):
-            tmpstate = rotate(tmpstate)
+            tmpstate = self.rotate_state_(tmpstate)
             not_present = True
             for entry in res:
                 if np.all(entry == tmpstate):
