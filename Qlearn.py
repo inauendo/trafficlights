@@ -129,6 +129,11 @@ class Agent:
             if (episode+1) % int(episodes/20) == 0:
                 print(int(episode/episodes * 100), "% done...")
 
+    def experience_stats(self):
+        '''returns the cases where the agent has some idea what to do, i.e. the row numbers of the Q-table where not all values are zero.'''
+        indices = [i for i in range(np.shape(self.Q)[0]) if np.any(self.Q[i]) != 0]
+        return indices
+
     def solve(self, max_steps = 10):
         '''tries to apply the current Q-table to solve the environment.'''
         reward = 0
