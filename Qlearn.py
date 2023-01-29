@@ -171,8 +171,8 @@ class Agent:
         efficiency_sum = 0
         for i in range(testnum):
             complexity = random.choice(np.arange(1, max_complex+1))     #randomly set complexity of the test run
-            ag.env.generate_test_case(complexity=complexity)
-            flag, steps = ag.solve(max_steps=max_steps)
+            self.env.generate_test_case(complexity=complexity)
+            flag, steps = self.solve(max_steps=max_steps)
             if flag == True:
                 success_count += 1
                 efficiency_sum += complexity/steps
