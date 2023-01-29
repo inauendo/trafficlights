@@ -43,7 +43,7 @@ class Environment:
         self.state_ = np.where(temp >= 0, temp, 0)
         self.actions_taken += 1
 
-        reward = -self.actions_taken
+        reward = 1/self.actions_taken
         for lane in self.state_:
             if lane != 0:
                 reward = 0  #reset reward if there are still non-zero lanes
