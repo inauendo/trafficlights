@@ -67,6 +67,12 @@ class Environment:
             if not_present == True:
                 res.append(tmpstate)
         return np.array(res)
+    
+    def generate_test_case(self, complexity):
+        '''sets the state to a random state where the optimal amount of steps necessary to solve it equals the given complexity.'''
+        self.state_ = np.zeros_like(self.state_)
+        for i in range(complexity):
+            self.state_ += random.choice(list(self.actions.values()))
 
 class Agent:
     def __init__(self, environment = Environment()):
@@ -134,22 +140,49 @@ class Agent:
         indices = [i for i in range(np.shape(self.Q)[0]) if np.any(self.Q[i]) != 0]
         return indices
 
-    def solve(self, max_steps = 10):
+    def solve(self, max_steps = 10, verbose = False):
         '''tries to apply the current Q-table to solve the environment.'''
         reward = 0
         steps = 0
-        print("Current state:", self.env.return_state())
+        success = True
+        if verbose == True:
+            print("Current state:", self.env.return_state())
         while reward == 0:
             action_key = list(self.env.actions.keys())[np.argmax(self.Q[self.state_to_index_(self.env.return_state())])]
-            print("applying action:", action_key)
             new_state, reward = self.env.perform_action(action_key)
-            print("current state:", new_state)
+            if verbose == True:
+                print("applying action:", action_key)
+                print("current state:", new_state)
 
             steps += 1
             if steps >= max_steps:
-                print("Maximum number of steps reached.")
+                if verbose == True:
+                    print("Maximum number of steps reached.")
+                success = False
                 break
+        
+        return success, steps
+
+    def test_model(self, testnum, max_complex = 5, max_steps = 10):
+        '''tests the model, where testnum denotes the amount of test runs and max_complex the maximal amount of necessary actions to clear the environment in the optimal case.
+        Max_steps is the same flag as in solve.
+        Returns the amount of successful test cases and the average efficiency. Note that efficiency is only tracked if the case was solved successfully.'''
+        success_count = 0
+        efficiency_sum = 0
+        for i in range(testnum):
+            complexity = random.choice(np.arange(1, max_complex+1))     #randomly set complexity of the test run
+            ag.env.generate_test_case(complexity=complexity)
+            flag, steps = ag.solve(max_steps=max_steps)
+            if flag == True:
+                success_count += 1
+                efficiency_sum += complexity/steps
+        return success_count, efficiency_sum/success_count
+        
 
 if __name__ == "__main__":
     env = Environment()
     ag = Agent()
+    ag.train(10000, max_steps=15)
+    succ_count, avg_eff = ag.test_model(100)
+    succ_rate = succ_count/100
+    print("Tested "+str(100)+" cases. Success rate: "+str(succ_rate)+", average efficiency: "+str(avg_eff))
