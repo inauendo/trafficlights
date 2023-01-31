@@ -132,8 +132,12 @@ class Agent:
                 if reward != 0:
                     break
 
-            if (episode+1) % int(episodes/20) == 0:
-                print(int(episode/episodes * 100), "% done...")
+            if episode % (episodes//20) == 0:
+                barlength = episode//(episodes//20)
+                print((barlength*'\u2588' + (20-barlength)*'-'+" {ratio:.0%}  training...").format(ratio=episode/episodes), end='\r')
+            
+        print((20*'\u2588' + " {ratio:.0%}  training finished.").format(ratio=1))
+                
 
     def experience_stats(self):
         '''returns the cases where the agent has some idea what to do, i.e. the row numbers of the Q-table where not all values are zero.'''
@@ -182,7 +186,3 @@ class Agent:
 if __name__ == "__main__":
     env = Environment()
     ag = Agent()
-    ag.train(10000, max_steps=15)
-    succ_count, avg_eff = ag.test_model(100)
-    succ_rate = succ_count/100
-    print("Tested "+str(100)+" cases. Success rate: "+str(succ_rate)+", average efficiency: "+str(avg_eff))
