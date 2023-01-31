@@ -170,7 +170,7 @@ class Agent:
     def test_model(self, testnum, max_complex = 5, max_steps = 10):
         '''tests the model, where testnum denotes the amount of test runs and max_complex the maximal amount of necessary actions to clear the environment in the optimal case.
         Max_steps is the same flag as in solve.
-        Returns the amount of successful test cases and the average efficiency. Note that efficiency is only tracked if the case was solved successfully.'''
+        Returns the amount of successful test cases and the average efficiency.'''
         success_count = 0
         efficiency_sum = 0
         for i in range(testnum):
@@ -180,7 +180,7 @@ class Agent:
             if flag == True:
                 success_count += 1
                 efficiency_sum += complexity/steps
-        return success_count, efficiency_sum/success_count
+        return success_count, efficiency_sum/testnum
         
 
 if __name__ == "__main__":
