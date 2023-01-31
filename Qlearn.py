@@ -98,7 +98,7 @@ class Agent:
     def train(self, episodes, max_eps=1.0, min_eps=0.05, learning_rate=0.7, decay_rate=0.0005, gamma=0.95, max_steps=10):
         '''trains the model, modifying the Q-table.'''
         for episode in range(episodes):
-            self.env = Environment()
+            self.env = Environment(maxcars=1)
             steps = 0
             eps = min_eps + (max_eps - min_eps)*np.exp(-decay_rate*episode)
 
