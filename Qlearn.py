@@ -181,7 +181,14 @@ class Agent:
                 success_count += 1
                 efficiency_sum += complexity/steps
         return success_count, efficiency_sum/testnum
-        
+    
+    def save_model(self, filepath):
+        '''saves the Q-table of this Agent to a file located in filepath.'''
+        np.savetxt(filepath, self.Q, delimiter=',')
+
+    def load_model(self, filepath):
+        '''loads the Q-table from a given file in location filepath.'''
+        self.Q = np.loadtxt(filepath, delimiter=",")
 
 if __name__ == "__main__":
     env = Environment()
