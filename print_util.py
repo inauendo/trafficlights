@@ -26,7 +26,7 @@ def replace_at(string, index, newchar):
 def state_string(lanes, can_drive):
 
     #create strings for the lanes
-    state = ["X" if entry == 1 else " " for entry in lanes]
+    state = ["X" if entry > 0 else " " for entry in lanes]
     line1 = "_|{0}|{1}|{2}|       _".format(state[8], state[7], state[6])
     line2 = 15*" " + underscore("{0}".format(state[5]))
     line3 = 15*" " + underscore("{0}".format(state[4]))

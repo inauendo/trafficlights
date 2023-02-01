@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from print_util import *
 
 class Environment:
 
@@ -73,6 +74,10 @@ class Environment:
         self.state_ = np.zeros_like(self.state_)
         for i in range(complexity):
             self.state_ += random.choice(list(self.actions.values()))
+
+    def print_state(self):
+        _ = os.system("")
+        print(state_string(self.state_, np.zeros_like(self.state_)))
 
 class Agent:
     def __init__(self, environment = Environment()):
@@ -193,3 +198,4 @@ class Agent:
 if __name__ == "__main__":
     env = Environment()
     ag = Agent()
+    ag.env.print_state()
