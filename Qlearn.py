@@ -158,14 +158,18 @@ class Agent:
         reward = 0
         steps = 0
         success = True
-        if verbose == True:
-            print("Current state:", self.env.return_state())
         while reward == 0:
             action_key = list(self.env.actions.keys())[np.argmax(self.Q[self.state_to_index_(self.env.return_state())])]
-            new_state, reward = self.env.perform_action(action_key)
             if verbose == True:
-                print("applying action:", action_key)
-                print("current state:", new_state)
+                _ = os.system('cls')
+                print("Current state:")
+                self.env.print_state()
+                _ = input("\n\nPress any key to continue.")
+                _ = os.system('cls')
+                print("Action:")
+                self.env.print_state(action_key=action_key)
+                _ = input("\n\nPress any key to continue.")
+            new_state, reward = self.env.perform_action(action_key)
 
             steps += 1
             if steps >= max_steps:
@@ -174,6 +178,11 @@ class Agent:
                 success = False
                 break
         
+        if reward != 0 and verbose == True:
+            _ = os.system('cls')
+            print("Current state:")
+            self.env.print_state()
+
         return success, steps
 
     def test_model(self, testnum, max_complex = 5, max_steps = 10):
@@ -202,4 +211,3 @@ class Agent:
 if __name__ == "__main__":
     env = Environment()
     ag = Agent()
-    ag.env.print_state('down_all')
