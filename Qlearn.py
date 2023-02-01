@@ -75,9 +75,13 @@ class Environment:
         for i in range(complexity):
             self.state_ += random.choice(list(self.actions.values()))
 
-    def print_state(self):
+    def print_state(self, action_key = ""):
         _ = os.system("")
-        print(state_string(self.state_, np.zeros_like(self.state_)))
+        if action_key == "":
+            action = np.zeros_like(self.state_)
+        else:
+            action = self.actions[action_key]
+        print(state_string(self.state_, action))
 
 class Agent:
     def __init__(self, environment = Environment()):
@@ -198,4 +202,4 @@ class Agent:
 if __name__ == "__main__":
     env = Environment()
     ag = Agent()
-    ag.env.print_state()
+    ag.env.print_state('down_all')
