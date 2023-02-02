@@ -108,7 +108,6 @@ class Agent:
         '''trains the model, modifying the Q-table.'''
         for episode in range(episodes):
             self.env = Environment(maxcars=1)
-            steps = 0
             eps = min_eps + (max_eps - min_eps)*np.exp(-decay_rate*episode)
 
             for step in range(max_steps):
@@ -207,7 +206,3 @@ class Agent:
     def load_model(self, filepath):
         '''loads the Q-table from a given file in location filepath.'''
         self.Q = np.loadtxt(filepath, delimiter=",")
-
-if __name__ == "__main__":
-    env = Environment()
-    ag = Agent()
