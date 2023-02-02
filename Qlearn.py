@@ -3,6 +3,49 @@ import random
 from print_util import *
 
 class Environment:
+    """Class representing a four-way intersection, used as environment for the agent.
+    
+    attributes
+    ----------
+    actions : dict
+        a dictionary containing all possible trafficlight settings, i.e. the actions the agent can take.
+        Each action is represented by an array of length 12, where 1 means the car can drive, 0 means it must wait.
+        Lanes are labeled counter-clockwise, beginning at the bottom (south).
+
+    maxcars : int
+        The maximum amount of cars waiting in each lane.
+
+    lanes : int
+        The amount of lanes at the intersection.
+
+    state_ : np.array[int]
+        Numpy array representing the amount of cars in each lane. Lanes are labelled counter-clockwise, starting at the bottom (south).
+
+    actions_taken : int
+        How many actions have already been performed, i.e. how many waves of cars have passed through the intersection.
+    
+    methods
+    -------
+    return_state()
+        returns a numpy array with size lanes that carries a 1 for each lane where at least one car is waiting, and 0 otherwise.
+
+    perform_action(action_key)
+        performs a given action on the intersection.
+
+    rotate_state_(state)
+        rotates the given state 90° counter-clockwise.
+
+    find_permutations_()
+        finds all possible intersection states by rotating the current intersection's state
+
+    generate_test_case(complexity)
+        generates an intersection state which can be resolved in a given number of actions, given by complexity, and sets the
+        current state to this.
+
+    print_state(action_key = "")
+        prints a visualisation of the current state and, if given, the planned action given by action_key to the console.
+
+    """
 
     actions = {
         'all_right': [0,0,1,0,0,1,0,0,1,0,0,1],
@@ -25,18 +68,50 @@ class Environment:
         }
 
     def __init__(self, maxcars = 3):
+        """Constructs a random state for the intersection.
+        
+        parameters
+        ----------
+        maxcars : int, optional
+            The maximum amount of cars in each lane. Default is 3.
+        """
         self.maxcars = maxcars
         self.lanes = 12
         self.state_ = np.random.randint(0, self.maxcars+1, size=self.lanes)
         self.actions_taken = 0
 
     def return_state(self):
-        '''returns the state an agent sees.'''
+        '''Returns the current state as seen by the agent, i.e. whether cars are present in lanes or not.
+        
+        returns
+        -------
+        state : np.array
+            A numpy array of length Environment.lanes, where a 1 denotes a lane occupied by a waiting car, and 0 denotes a free lane.
+        '''
         non_zero = lambda x: x if x==0 else 1
         return np.array([non_zero(line) for line in self.state_])
     
     def perform_action(self, action_key):
-        '''performs action corresponding to action_key on the state, returns new state and reward.'''
+        '''Performs a given action on the current state, returning the new state and its reward, if any.
+        
+        parameters
+        ----------
+        action_key : string
+            the name of the action as called in Environment.actions.
+
+        returns
+        -------
+        new_state : np.array
+            the new state of the intersection, after the actions has been taken.
+
+        reward : int
+            the reward granted if the action managed to clear the intersection.
+
+        raises
+        ------
+        ValueError
+            If action_key is not a valid key for Environment.actions.
+        '''
         if action_key not in self.actions.keys():
             raise ValueError('Passed action key does not correspond to a valid action!')
         
@@ -56,7 +131,18 @@ class Environment:
         return np.concatenate((state[-3:], state[:-3]))
     
     def find_permutations_(self, state):
-        '''finds an returns all non-trivial states that can be found by rotating the given state.'''
+        '''finds all non-trivial states that can be found by rotating the given state.
+        
+        parameters
+        ----------
+        state : np.array
+            array of representing the intersection state.
+            
+        returns
+        -------
+        res : np.array
+            the same state, rotated by 90° counter-clockwise.
+        '''
         res = [state]
         tmpstate = state
         for i in range(3):
@@ -70,12 +156,25 @@ class Environment:
         return np.array(res)
     
     def generate_test_case(self, complexity):
-        '''sets the state to a random state where the optimal amount of steps necessary to solve it equals the given complexity.'''
+        '''sets the current state to a random state where the optimal amount of steps necessary to solve it equals the given complexity.
+        
+        parameters
+        ----------
+        complexity : int
+            the optimal amount of actions necessary to clear the intersection.
+        '''
         self.state_ = np.zeros_like(self.state_)
         for i in range(complexity):
             self.state_ += random.choice(list(self.actions.values()))
 
     def print_state(self, action_key = ""):
+        '''prints a visualisation of the current intersection state and planned action, if given, to the console.
+        
+        parameters
+        ----------
+        action_key : string, optional
+            name of the planned action, as called in Environment.actions. If not given (standard), no action is printed.
+        '''
         _ = os.system("")
         if action_key == "":
             action = np.zeros_like(self.state_)
