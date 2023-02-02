@@ -12,4 +12,6 @@ model.train(episodes=1000)
 model.refresh_environment()
 success, actions = model.solve(verbose=True)
 ```
+To save an agent as a file, use the .save_model() method.
+
 To evaluate the agent's efficiency, the .test_model() method can be used. It creates a given amount of test cases and lets the agent attempt to solve them. It returns the amount of successful test cases and the average efficiency of the agent. The efficiency of the agent on a given test case is defined as the ratio between the optimal amount of actions and the actual amount of actions taken. Thus, in an intersection which could optimall be cleared in 3 actions but the agent took 4, the efficiency is 0.75.
