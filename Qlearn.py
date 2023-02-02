@@ -183,19 +183,89 @@ class Environment:
         print(state_string(self.state_, action))
 
 class Agent:
+    """Class representing an agent, who changes the trafficlight state to clear cars waiting at an intersection. Mechanically, takes actions
+    given in Environment.actions on an Environment instance to clear its state.
+    
+    attributes
+    ----------
+    env : Environment
+        the Environment instance the agent operates on.
+
+    Q : np.array
+        the Q-table which governs its decisions.
+
+    methods
+    -------
+    state_to_index_(state)
+        converts an Environment state to its corresponding index in the Q-table.
+
+    epsilon_greedy_policy(epsilon)
+        decides whether the agent should act randomly (exploration) or as learned from experience (exploitation).
+
+    train(episodes, max_eps=1.0, min_eps=0.05, learning_rate=0.7, decay_rate=0.0005, gamma=0.95, max_steps=10)
+        trains the model by letting it act on a state, rewarding it upon success and modifying its Q-table.
+
+    refresh_environment()
+        generates a new random state for the agent's environment.
+
+    experience_stats()
+        returns the indices of the agent's Q-table where not all entires are zero, meaning indices where the agent has learned something.
+
+    solve(max_steps = 10, verbose = False)
+        attempts to solve the current state of the agent's environment by applying what it has learned (exploitation).
+
+    test_model(testnum, max_complex = 5, max_steps = 10)
+        lets the model run through a given amount of test cases to evaluate its performance.
+
+    save_model(filepath)
+        saves the agent's Q-table to a file.
+
+    load_model(filepath)
+        loads the agent's Q-table from a file.
+    """
+
     def __init__(self, environment = Environment()):
+        """
+        parameters
+        ----------
+        environment : Environment
+            The environment instance the agent will operate on.
+        """
         self.env = environment
         self.Q = np.zeros((2**self.env.lanes, len(self.env.actions.keys())))  #Q table
 
     def state_to_index_(self, state):
-        '''converts a lane state (as given by self.return_state) to the corresponding index in the Q table.'''
+        '''converts a given environment state to its corresponding index in the Q table.
+        
+        parameters
+        ----------
+        state : np.array
+            the state array (as given by Environment.return_state() ) to look up.
+            
+        returns
+        -------
+        res : int
+            the index in the agent's Q-table, such that the relevant row can be found in self.Q[res].
+        '''
         res = 0
         for i in range(len(state)):
             res += state[::-1][i]*2**i
         return res
     
     def epsilon_greedy_policy(self, epsilon):
-        '''returns the action key corresponding to the action to take determined by the epsilon greedy policy.'''
+        '''Decies whether the agent should act randomly (exploration) or based on its learned behaviour (exploitation) and
+        returns the corresponding action key.
+        
+        parameters
+        ----------
+        epsilon : float
+            The chance for which the agent acts randomly. Should be between 0 and 1.
+            
+        returns
+        -------
+        action key : string
+            name of the action the agent will take, as called in Environment.actions.
+        '''
         random_num = random.uniform(0,1)
         if random_num < epsilon:
             return random.choice(list(self.env.actions.keys()))
@@ -203,8 +273,32 @@ class Agent:
             index = np.argmax(self.Q[self.state_to_index_(self.env.return_state())])
             return list(self.env.actions.keys())[index]
         
-    def train(self, episodes, max_eps=1.0, min_eps=0.05, learning_rate=0.7, decay_rate=0.0005, gamma=0.95, max_steps=10):
-        '''trains the model, modifying the Q-table.'''
+    def train(self, episodes, max_eps=1.0, min_eps=0.05, learning_rate=0.7, decay_rate=0.0005, gamma=0.7, max_steps=10):
+        '''trains the model by letting it act on a state, rewarding it upon success and modifying its Q-table.
+        
+        parameters
+        ----------
+        episodes : int
+            the number of training episodes the agent goes through.
+
+        max_eps : float, optional
+            The maximum epsilon value during training, determining the chance for random behaviour. Standard is 1.0.
+
+        min_eps : float, optional
+            The minimum epsilon value during training, determining the chance for random behaviour. Standard is 0.05.
+        
+        learning_rate : float, optional
+            The rate at which training influences the already learned behaviour. A higher value means a higher willingness to learn.
+
+        decay_rate : float, optional
+            The rate at which the epsilon value decays over training. Standard value is 0.0005.
+
+        gamma : float, optional
+            The factor with which later rewards are weighted compared to immediate ones. Standard value is 0.7.
+
+        max_steps : int, optional
+            The maximum amount of actions the agent is allowed to take during training. Standard value is 10.
+        '''
         for episode in range(episodes):
             self.env = Environment(maxcars=1)
             eps = min_eps + (max_eps - min_eps)*np.exp(-decay_rate*episode)
@@ -246,17 +340,43 @@ class Agent:
         print((20*'\u2588' + " {ratio:.0%}  training finished.").format(ratio=1))
 
     def refresh_environment(self):
-        '''refreshes the environment.'''
+        '''generates a new random state for the agent's environment.'''
         self.env = Environment()
                 
 
     def experience_stats(self):
-        '''returns the cases where the agent has some idea what to do, i.e. the row numbers of the Q-table where not all values are zero.'''
+        '''returns the cases where the agent has some idea what to do, i.e. the indices of the Q-table where not all values are zero.
+        
+        returns
+        -------
+        indices : np.array
+            an array of indices where the current Q-table does not only hold zero-values.
+        '''
         indices = [i for i in range(np.shape(self.Q)[0]) if np.any(self.Q[i]) != 0]
         return indices
 
     def solve(self, max_steps = 10, verbose = False):
-        '''tries to apply the current Q-table to solve the environment.'''
+        '''attempts to solve the current state of the agent's environment by applying what it has learned (exploitation).
+        
+        parameters
+        ----------
+        max_steps : int, optional
+            The maximum amount of actions the agent is allowed to take before the attempt is considered a failure.
+            Standard value is 10.
+        
+        verbose : bool, optional
+            Flag determining whether the steps the agent takes should be represented visually.
+            If set to True, updates in the agent's solution attempt are printed to console.
+            Standard is False.
+
+        returns
+        -------
+        success : bool
+            Whether the agent succeeded in clearing the state.
+
+        steps : int
+            The amount of actions the agent took in the solution attempt.
+        '''
         reward = 0
         steps = 0
         success = True
@@ -288,9 +408,33 @@ class Agent:
         return success, steps
 
     def test_model(self, testnum, max_complex = 5, max_steps = 10):
-        '''tests the model, where testnum denotes the amount of test runs and max_complex the maximal amount of necessary actions to clear the environment in the optimal case.
-        Max_steps is the same flag as in solve.
-        Returns the amount of successful test cases and the average efficiency.'''
+        '''lets the model run through a given amount of test cases to evaluate its performance.
+        
+        parameters
+        ----------
+        testnum : int
+            The  number of test cases the agent is put through.
+
+        max_complex : int, optional
+            The maximum complexity for test cases, i.e. how many actions are at least
+            necessary to solve the test cases. Standard value is 5.
+        
+        max_steps : int, optional
+            Amount of actions the agent is allowed to take on each test case before the attempt
+            is considered a failure. Standard value is 10.
+
+        returns
+        -------
+        success_count : int
+            The amount of successfully solved test cases.
+
+        efficiency : float
+            The average efficiency over all test cases. The efficiency is defined as the ratio between
+            optimal number of actions to solve the test case and the needed steps. If the agent did
+            not succeed in solving the test case, the efficiency is considered to be 0. For example,
+            a test case with complexity 4, which was solved in 5 action would yield an efficiency
+            of 0.8.
+        '''
         success_count = 0
         efficiency_sum = 0
         for i in range(testnum):
@@ -303,9 +447,20 @@ class Agent:
         return success_count, efficiency_sum/testnum
     
     def save_model(self, filepath):
-        '''saves the Q-table of this Agent to a file located in filepath.'''
+        '''saves the Q-table of this Agent to a file located in filepath.
+        parameters
+        ----------
+        filepath : string
+            The filepath to the file where the Q-table should be stored.
+        '''
         np.savetxt(filepath, self.Q, delimiter=',')
 
     def load_model(self, filepath):
-        '''loads the Q-table from a given file in location filepath.'''
+        '''loads the Q-table from a given file in location filepath.
+        
+        parameters
+        ----------
+        filepath : string
+            The filepath where the agent's Q-table is stored.
+        '''
         self.Q = np.loadtxt(filepath, delimiter=",")
