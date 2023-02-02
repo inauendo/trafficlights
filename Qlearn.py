@@ -145,6 +145,10 @@ class Agent:
                 print((barlength*'\u2588' + (20-barlength)*'-'+" {ratio:.0%}  training...").format(ratio=episode/episodes), end='\r')
             
         print((20*'\u2588' + " {ratio:.0%}  training finished.").format(ratio=1))
+
+    def refresh_environment(self):
+        '''refreshes the environment.'''
+        self.env = Environment()
                 
 
     def experience_stats(self):
